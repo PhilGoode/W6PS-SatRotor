@@ -1,0 +1,76 @@
+W6PS SatRotor Fixed-Move Test
+
+Goal
+- Test controlled software-driven moves from a known zero.
+- Ignore the broken pan query as an absolute truth source.
+- Check whether commanded moves are practically repeatable.
+
+Before You Start
+1. Power up the system and let it settle.
+2. Put the head at your real zero by hand/encoder.
+3. Make sure the Pi UI shows the normal rotor page.
+
+SSH Into The Pi
+ssh phil@192.168.4.138
+
+Zero The Controller At Physical Zero
+curl -s -X POST http://127.0.0.1:8000/api/rotor/zero
+
+Check Current Readback
+printf 'p\n' | nc 127.0.0.1 4533
+
+Test Sequence
+- Run one move at a time.
+- Let the head finish moving before the next command.
+- Write down the physical heading each time.
+
+Move To 30 / 0
+printf 'P 30 0\n' | nc 127.0.0.1 4533
+printf 'p\n' | nc 127.0.0.1 4533
+
+Move To 60 / 0
+printf 'P 60 0\n' | nc 127.0.0.1 4533
+printf 'p\n' | nc 127.0.0.1 4533
+
+Move To 90 / 0
+printf 'P 90 0\n' | nc 127.0.0.1 4533
+printf 'p\n' | nc 127.0.0.1 4533
+
+Move To 120 / 0
+printf 'P 120 0\n' | nc 127.0.0.1 4533
+printf 'p\n' | nc 127.0.0.1 4533
+
+Move Back To 90 / 0
+printf 'P 90 0\n' | nc 127.0.0.1 4533
+printf 'p\n' | nc 127.0.0.1 4533
+
+Move Back To 60 / 0
+printf 'P 60 0\n' | nc 127.0.0.1 4533
+printf 'p\n' | nc 127.0.0.1 4533
+
+Move Back To 30 / 0
+printf 'P 30 0\n' | nc 127.0.0.1 4533
+printf 'p\n' | nc 127.0.0.1 4533
+
+Move Home To 0 / 0
+printf 'P 0 0\n' | nc 127.0.0.1 4533
+printf 'p\n' | nc 127.0.0.1 4533
+
+Emergency Stop
+printf 'S\n' | nc 127.0.0.1 4533
+
+What To Record
+- Physical heading after each command
+- Whether it overshoots or undershoots
+- Whether it returns to zero cleanly
+- Any direction where motion becomes jerky or wrong
+
+Suggested Report Format
+30 -> physical ___ / Pi ___
+60 -> physical ___ / Pi ___
+90 -> physical ___ / Pi ___
+120 -> physical ___ / Pi ___
+90 back -> physical ___ / Pi ___
+60 back -> physical ___ / Pi ___
+30 back -> physical ___ / Pi ___
+0 home -> physical ___ / Pi ___

@@ -1,0 +1,134 @@
+W6PS SatRotor Spoof Board Wiring
+Updated: 2026-06-14
+
+GOAL
+- Keep both azimuth switch loops normally closed.
+- After boot delay, open loop 1 briefly, close it.
+- Wait, then open loop 2 briefly, close it.
+- Let the head continue its normal tilt/startup sequence.
+
+KNOWN FACTS
+- Both azimuth switch loops are normally closed.
+- Both loops open when the real limit switch is hit.
+- Loop voltage is about 5V.
+- The head needs both loops closed during normal startup until we intentionally break them.
+- The first spoof should not happen until at least about 3 seconds after power-up.
+
+PARTS
+- 1x ATmega328PB / Pro Mini style 5V board
+- 1x 2-channel 5V relay module
+- 1x 4-pin female pigtail for the head-side harness
+- 1x 4-pin male pigtail for the board-side harness
+- hookup wire
+- heat shrink / insulation
+
+PROGRAMMING THE ARDUINO BOARD
+- This board has no USB port.
+- Use a 5V USB-to-TTL adapter.
+
+USB-TTL ADAPTER -> ARDUINO
+- TX -> RXI
+- RX -> TXO
+- GND -> GND
+- 5V -> VCC
+
+IF THE ADAPTER HAS DTR
+- DTR -> DTR
+
+IF THE ADAPTER HAS NO DTR
+- use TX / RX / GND / 5V only
+- press the reset button on the Arduino board manually when the upload starts
+
+RUNTIME POWER
+- DO NOT assume RAW is safe for 12V on this clone board.
+- For the replacement board, use a known regulated 5V supply into VCC unless the board's regulator/input path is verified first.
+- 5V regulated -> Arduino VCC
+- GND -> Arduino GND
+
+ARDUINO -> RELAY BOARD
+- Arduino VCC -> relay VCC / DC+
+- Arduino GND -> relay GND / DC-
+- Arduino pin 2 -> relay IN1
+- Arduino pin 3 -> relay IN2
+
+RELAY JUMPER
+- Set relay input trigger to H if using HIGH = relay on.
+
+RELAY CONTACTS
+- Use COM and NC on both channels.
+- Do NOT use NO.
+
+CHANNEL ASSIGNMENT
+- IN1 / Relay 1 = first azimuth trigger
+- IN2 / Relay 2 = second azimuth trigger
+
+LIMIT LOOP WIRING
+- Loop 1:
+  - board-side G1 -> COM1
+  - switch-side K1 -> NC1
+
+- Loop 2:
+  - board-side G2 -> COM2
+  - switch-side K2 -> NC2
+
+NOTE
+- The normal unpowered relay state must keep the loops closed.
+- Energizing the relay should open the loop briefly.
+
+FIRST-PASS TIMING
+- boot delay before first trigger: 3000 ms minimum
+- first open pulse: 200 ms
+- wait before second trigger: 2000 ms
+- second open pulse: 200 ms
+
+SEQUENCE
+1. power up head
+2. keep both loops closed
+3. wait 3 seconds
+4. energize IN1 briefly to open loop 1
+5. release IN1 to close loop 1
+6. wait about 2 seconds
+7. energize IN2 briefly to open loop 2
+8. release IN2 to close loop 2
+9. leave both loops closed and let the head finish startup
+
+ASCII WIRING SKETCH
+
+12V -----------------------------> RAW (Arduino)
+STOP: do not use this on the replacement board unless verified.
+
+Recommended replacement wiring:
+5V regulated --------------------> VCC (Arduino)
+GND -----------------------------> GND (Arduino)
+
+Arduino VCC ---------------------> Relay VCC
+Arduino GND ---------------------> Relay GND
+Arduino pin 2 -------------------> IN1
+Arduino pin 3 -------------------> IN2
+
+Loop 1:
+Head board side G1 -------------> COM1
+Head switch side K1 ------------> NC1
+
+Loop 2:
+Head board side G2 -------------> COM2
+Head switch side K2 ------------> NC2
+
+PROGRAMMING SKETCH
+
+USB-TTL TX ---------------------> RXI
+USB-TTL RX ---------------------> TXO
+USB-TTL GND --------------------> GND
+USB-TTL 5V ---------------------> VCC
+USB-TTL DTR --------------------> DTR (if available)
+
+NOTES
+- Duplicate TXO / RXI / RST pads on the Arduino board are the same nets.
+- Use one copy of each, not both.
+- On this board:
+  - RXI = digital pin 0
+  - TXO = digital pin 1
+  - pins 2 and 3 are labeled only as "2" and "3" on the silk
+- We let the smoke out of one clone board using RAW as 12V input. Treat RAW as untrusted on these boards unless verified with the exact board documentation or meter tracing.
+- Start with receive-only caution only if probing unknown UARTs.
+- This Arduino programming header is a normal Pro Mini style serial upload arrangement.

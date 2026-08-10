@@ -1,0 +1,23 @@
+.DS_Store
+__pycache__/
+*.py[cod]
+firmware/.pio/
+firmware/.vscode/
+DerivedData/
+build/
+*.swp
+*.swo
+*.tmp
+
+# credentials - never publish
+arduino_secrets.h
+
+# local-only bulk: backups, scratch, big binaries, venvs
+BACKUPS_LIVE_HERE_FOR_WHEN_I_FUCK_UP/
+firmware-backups/
+esp-backups/
+tmp/
+tmp_specs/
+de421.bsp
+.venv/
+xcuserdata/
